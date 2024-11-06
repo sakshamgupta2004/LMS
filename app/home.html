@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel='stylesheet' href='../node_modules/bootstrap/dist/css/bootstrap.min.css'>
+  <link rel="stylesheet" href="include/css/theme.css">
+
+  <script>let $ = require('jquery');</script>
+  <script>require('popper.js');</script>
+  <script>require('bootstrap');</script>
+</head>
+
+<body>
+
+  <br/>
+  <br/><br/>
+  <h1>Library Management System - PBL DBMS</h1>
+  <div class="container">
+
+    <div class="row btnRow">
+
+      <div class="col-sm-3 btn-group-vertical">
+        <button class='btn btnLink' id='Issue Book'>Issue Book</button>
+        <button class='btn btnLink' id='Return Book'>Return Book</button>
+      </div>
+      <div class="col-sm-3 btn-group-vertical">
+        <button class='btn btnLink' id='New Book'>New Book</button>
+        <button class='btn btnLink' id='Book List'>Book List</button>
+      </div>
+      <div class="col-sm-3 btn-group-vertical">
+        <button class='btn btnLink' id='New Member'>New Member</button>
+        <button class='btn btnLink' id='Member List'>Member List</button>
+      </div>
+
+      <div class="col-sm-3 btn-group-vertical">
+        <button id="Issue List" class="btn btnLink">Issue List</button>
+        <button id="Return List" class="btn btnLink">Return List</button>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+
+
+const fs = require("fs");
+
+//Detects Click and Adds a hypperlink basically
+function addWindowLink(bId, url) {
+    var btn = document.getElementById(bId);
+    btn.addEventListener('click', function (event) {
+      var electron = require('electron');
+      var BrowserWindow = electron.remote.BrowserWindow;
+      var path = require('path');
+      mPath = path.join('file://', __dirname, url);     //__dirname returns the actual file path of current file
+      let win = new BrowserWindow({ width: 1000, height: 500, webPreferences: { nodeIntegration: true, contextIsolation:false },icon:path.join(__dirname, "app/titlebar/icon.png"),
+      frame: false });
+      win.loadURL(mPath);
+      win.hide();
+    win.webContents.on("did-finish-load", (e, i) => {
+        win.show();
+    });
+      
+  win.webContents.on("did-finish-load", (e, i) => {
+    win.webContents.executeJavaScript(
+        fs.readFileSync(path.join(__dirname, "titlebar/titlebar.js")).toString()
+    );
+    win.webContents.executeJavaScript('document.querySelector(\'#maximize\').hidden=true;');
+    win.webContents.executeJavaScript('document.querySelector(\'#minimize\').hidden=true;');
+    win.webContents.executeJavaScript('document.querySelector(\'#headingofapp\').innerText=\'' + bId + '\';');
+  });
+
+    });
+
+  }
+
+
+  addWindowLink('Issue Book', 'book/issue.html');
+  addWindowLink('Return Book', 'book/return.html');
+  addWindowLink('Member List', 'member/memberList.html');
+  addWindowLink('Book List', 'book/bookList.html');
+  addWindowLink('New Member', 'member/newMember.html');
+  addWindowLink('New Book', 'book/newBook.html');
+
+  addWindowLink('Issue List', 'book/issueList.html');
+  addWindowLink('Return List', 'book/returnList.html');
+
+
+
+
+
+</script>
+
+
+
+
+
+</html>

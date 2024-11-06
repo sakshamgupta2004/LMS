@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <link rel='stylesheet' href='../../node_modules/bootstrap/dist/css/bootstrap.min.css'>
+
+        <link rel="stylesheet" href="../include/css/theme.css">
+        <script>let $ = require('jquery');</script>
+        <script>require('popper.js');</script>
+        <script>require('bootstrap');</script>
+        <script src='../include/db/db.js'></script>
+</head>
+<body>
+  
+  <div class="loading" id="spinner">Loading&#8230;</div>
+  <br/><br/><br/>
+        <h1>Transaction History</h1>
+        <hr>
+        
+        
+        <div class="container">
+        
+
+          <h2>Book Issues</h2>
+          <table class="table" id='bookIssueList'> 
+            <thead>
+              <tr>
+                <th>Return Date</th>
+                <th>Due Date</th>
+                <th>Issue Date</th>
+                <th>Fine</th>
+                <th>Book Name</th>
+                <th>Member Name</th>
+
+
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+          
+        
+        </div>
+        
+
+        <script>
+          var issueQry = ' select t.returnDate,DATE_ADD(t.issueDate,INTERVAL +7 DAY) as dueDate,t.issueDate,t.finePaid,b.bookTitle,m.memberName from book_master b inner join transaction t on b.bookId = t.bookId inner join member m on m.memberId = t.memberId and t.transClosed = 1 order by returnDate desc';
+          selectQry(issueQry,function(rows){
+            var tbl = '';
+
+            rows.forEach(function(row){
+              tbl += '<tr>';
+              tbl = tbl + '<td>' + row.returnDate + '</td>';
+              tbl = tbl + '<td>' + row.dueDate + '</td>';
+              tbl = tbl + '<td>' + row.issueDate + '</td>';
+              tbl = tbl + '<td>' + row.finePaid + '</td>';
+              tbl = tbl + '<td>' + row.bookTitle + '</td>';
+              tbl = tbl + '<td>' + row.memberName + '</td>';
+
+              tbl += '</tr>';
+            });
+
+            document.querySelector('#bookIssueList > tbody').innerHTML = tbl;
+            document.getElementsByClassName("loading").item(0).style.opacity = 0;
+          });
+        
+        
+        </script>
+
+</body>
+</html>

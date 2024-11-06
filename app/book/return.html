@@ -1,0 +1,251 @@
+<DOCTYPE html>
+<html lang="en">
+<head>
+        <link rel='stylesheet' href='../../node_modules/bootstrap/dist/css/bootstrap.min.css'>
+
+        <link rel="stylesheet" href="../include/css/theme.css">
+        <script>let $ = require('jquery');</script>
+        <script>require('popper.js');</script>
+        <script>require('bootstrap');</script>
+        <script src='../include/db/db.js'></script>
+</head>
+<body>
+
+
+  <div class="loading" id="spinner" hidden="true">Loading&#8230;</div>
+  <div class="container">
+    <br/><br/><br/>
+    <h1>Return Book</h1>
+    <hr>
+
+
+    <div class="bookReturn">
+      <form id='returnBook' >
+      
+
+        <div class="form-row" >
+          <div class="form-group col-md-4">
+            <label  for="tdate">Return Date</label>
+            <input class="form-control" id='returnDate' type="date" name='tdate'>
+          </div>
+        </div>    
+        
+        <h4>Find Transaction</h4>
+
+        <div class="form-row" >
+          <div class="form-group col-md-4">
+            <label  for="memberId">Member No</label>
+            <select id="" class="form-control memIdSel memberSel"  id='tmemId' name="memberId"></select>
+          </div>
+          <div class="form-group col-md-8">
+            <label  for="memberName">Member Name</label>
+            <select id="" class="form-control memNameSel memberSel" name="memberName"></select>
+          </div>
+        </div>    
+
+        
+        <table id="bookList" class="table">
+          <thead>
+            <th>Return</th>
+            <th>Book Title</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Fine</th>
+            <th>Add </th>
+          </thead>
+          
+          <tbody>
+          
+          </tbody>
+        </table>
+
+
+
+        <h4>Total Fine : <span id='totalFine'>0</span></h4>
+
+
+
+
+
+
+        
+        <div class="form-group row" >
+          <div class="col-sm-12"><input class="form-control" type="submit" value='Return Book'></div>
+        </div>    
+        
+        
+
+
+      </form>
+    </div>
+
+  </div>
+
+
+</body>
+
+
+<script>
+          
+          $(document).ready(function(){
+
+            var dt = new Date;
+            var mt = dt.getMonth() + 1;
+            if(mt < 10)
+              mt = '0' + mt;
+            var a = dt.getFullYear() + '-' + mt  + '-' + dt.getDate()
+            $('#returnDate').val(a);
+            
+          });           
+
+
+          var sel='.memberSel';
+          $(sel).change(function(event){
+            console.log('CHG : ' + this.value);
+            
+            //Get the Current Entered Date to Calculate Fine
+            var returnDate = new Date($('#returnDate').val());
+            console.log(returnDate);
+
+
+            //1. Bind Changes with Id/ Name selector
+            $(sel).val(this.value);
+            
+
+ //           2. Show Books Issued By Member, If Any!!
+              selectQry('select t.transId,bm.bookId,bm.bookTitle,t.issueDate,DATE_ADD(t.issueDate,INTERVAL +7 DAY) as dueDate from book_master bm inner join transaction t on t.bookId = bm.bookId and t.memberId = '+ this.value +' and t.transClosed = 0',function(rows){
+
+                var dtl = '';
+                var indx = 0;
+                rows.forEach(function(row){
+                  dtl = dtl + '<tr><td><input class="form-control returnCbox" type="checkbox" onclick="addFine()" name=rIndx value=' + indx + '></td>';
+                  dtl = dtl + '<td><input type=hidden name=rBookId value=' + row.bookId + '><input type=hidden name=transList value=' + row.transId + '>'  + row.bookTitle + '</td>';
+                  dtl = dtl + '<td>' + row.issueDate + '</td>';
+                  dtl = dtl + '<td>' + row.dueDate + '</td>';
+
+                  var tDue = new Date(row.dueDate);
+                  var tFine = 0;
+                  tFine = (returnDate.getTime() - tDue.getTime())/(1000 * 3600 * 24);
+                  if(tFine < 1)
+                    tFine = 0;
+
+
+
+                  indx++;
+                  dtl = dtl + '<td class=fineAmt><input class="form-control fineList" type="text" name=fineList value=' + tFine + '></td>';
+                });
+
+                document.querySelector('#bookList>tbody').innerHTML = dtl;
+
+              });
+    
+
+
+          });
+
+
+          function addFine()
+          {
+
+            var totalFine = 0;
+            $('#bookList>tbody').find('tr').each(function () {
+                var row = $(this);
+                console.log('New Row');
+                if (row.find('input[type="checkbox"]').is(':checked')) {
+                  var tfine = row.find('input[type="text"]').val();
+
+                  tfine *= 1;
+                  totalFine += tfine;
+                }
+            });
+
+            console.log(totalFine);  
+
+
+            $('#totalFine').text(totalFine);
+          }
+        
+          function addReturnBook(transId){
+
+            console.log('Return' + transId);
+          }
+
+
+
+
+
+        //Book Return Form
+        $("#returnBook").submit(function(event){
+          var values = $(this).serializeArray();
+          event.preventDefault();
+          console.log(values);
+
+          
+          var inputs = {};
+          var chkBox = [];
+          var finelist = [];
+          var bookList = [];
+          var indx = [];
+          $.each(values,function(k,v){
+            if(v.name =='transList')
+              chkBox.push(v.value);
+            if(v.name =='fineList')
+              finelist.push(v.value);
+            if(v.name =='rBookId')
+              bookList.push(v.value);
+            if(v.name =='rIndx')
+              indx.push(v.value);
+
+            inputs[v.name] = v.value;
+          });
+          inputs['transList'] = chkBox;
+          inputs['fineList'] = finelist;
+          inputs['rBookId'] = bookList;
+          inputs['rIndx'] = indx;   
+          
+          console.log(chkBox);
+          console.log(inputs);
+
+
+          inputs['rIndx'].forEach(function(element,index){
+            dbQuery('update book_master set qty = qty + 1 where bookId = ' + inputs['rBookId'][element]);
+            var qry = 'update transaction set returnDate="'+ inputs['tdate'] + '",finePaid='+inputs['fineList'][element] + ',transClosed=1 where transId = ' + inputs['transList'][element]; 
+            console.log(qry);
+            
+          document.getElementsByClassName("loading").item(0).hidden=false;
+            dbQuery(qry,1, () => {
+              window.close();
+            });  
+
+          })  
+
+
+
+
+
+        });
+        
+
+
+
+        //Fill Member Combo Box
+        selectQry('select memberId,memberName from member',function(rows){
+          var optId = '';
+          var optName = '';
+
+          rows.forEach(function(row){
+            optId += '<option value=' + row.memberId + '>' + row.memberId + '</option>';
+            optName += '<option value=' + row.memberId + '>' + row.memberName + '</option>';
+          });
+
+          document.querySelector('.memIdSel').innerHTML = optId;
+          document.querySelector('.memNameSel').innerHTML = optName;
+
+
+        });
+    
+
+</script>
+
+
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <link rel='stylesheet' href='../../node_modules/bootstrap/dist/css/bootstrap.min.css'>
+      
+        <link rel="stylesheet" href="../include/css/theme.css">
+        <script>let $ = require('jquery');</script>
+        <script>require('popper.js');</script>
+        <script>require('bootstrap');</script>
+        <script src='../include/db/db.js'></script>
+</head>
+<body>
+  
+  <div class="loading" id="spinner">Loading&#8230;</div>
+  <br/><br/><br/>
+        <h1>Member List</h1>
+        <hr>
+        
+        
+        <div class="container">
+        
+          <table id='memList' class="table table-responsive">
+            <thead>
+              <tr>
+                <th>Member No</th>
+                <th>Member Name</th>
+                <th>Contact No</th>
+                <th>Address</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        
+        
+        </div>
+
+
+        <script>
+          selectQry('select memberId,memberName,addr,contact,email from member',function(rows){
+            var tbl = '';
+
+            rows.forEach(function(row){
+              tbl += '<tr>';
+              tbl = tbl + '<td>' + row.memberId + '</td>';
+              tbl = tbl + '<td>' + row.memberName + '</td>';
+              tbl = tbl + '<td>' + row.contact + '</td>';
+              tbl = tbl + '<td>' + row.addr + '</td>';
+              tbl = tbl + '<td>' + row.email + '</td>';
+              tbl += '</tr>';
+            });
+
+            document.querySelector('#memList > tbody').innerHTML = tbl;
+            document.getElementsByClassName("loading").item(0).style.opacity = 0;
+          });
+        
+        
+        </script>
+
+</body>
+</html>

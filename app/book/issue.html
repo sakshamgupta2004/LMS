@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <link rel='stylesheet' href='../../node_modules/bootstrap/dist/css/bootstrap.min.css'>
+
+        <link rel="stylesheet" href="../include/css/theme.css">
+        <script>let $ = require('jquery');</script>
+        <script>require('popper.js');</script>
+        <script>require('bootstrap');</script>
+        <script src='../include/db/db.js'></script>
+</head>
+<body>
+
+  <div class="loading" id="spinner" hidden="true">Loading&#8230;</div>
+
+  <div class="container">
+    <br/><br/><br/>
+    <h1>New Transaction</h1>
+    <hr>
+
+
+    <div class="bookIssue">
+      <form id='issueBook' >
+        <h4>Book Issue</h4>
+      
+        <div class="form-row" >
+          <div class="form-group col-md-4">
+            <label  for="tdate">Transation Date</label>
+            <input class="form-control datesel" id='returnDate' type="date" name='tdate'>
+          </div>
+        </div>    
+        
+
+        <div class="form-row" >
+          <div class="form-group col-md-4">
+            <label  for="bookId">Book No/ISBN</label>
+            <!--input class="form-control" type="number" name='bookId'-->
+            <select class='form-control bookIdSel bookSel' name='bookId' >
+
+            </select>
+
+          </div>
+          <div class="form-group col-md-8">
+            <label  for="bookTitle">Book Title</label>
+            <!--input class="form-control" type="text" name='bookTitle'-->
+            <select id="" class="form-control bookNameSel bookSel" name="bookName"></select>
+          </div>
+        </div>    
+        
+
+
+        <div class="form-row" >
+          <div class="form-group col-md-4">
+            <label  for="memberId">Member No</label>
+            <select id="" class="form-control memIdSel memberSel" name="memberId"></select>
+          </div>
+          <div class="form-group col-md-8">
+            <label  for="memberName">Member Name</label>
+            <select id="" class="form-control memNameSel memberSel" name="memberName"></select>
+          </div>
+        </div>    
+
+        
+        <div class="form-group row" >
+          <div class="col-sm-12"><input class="form-control" type="submit" value='Issue Book'></div>
+        </div>    
+        
+        
+
+
+      </form>
+    </div>
+
+  </div>
+
+
+</body>
+
+
+<script>
+  
+          $(document).ready(function(){
+
+            var dt = new Date;
+            var mt = dt.getMonth() + 1;
+            if(mt < 10)
+              mt = '0' + mt;
+            var a = dt.getFullYear() + '-' + mt  + '-' + dt.getDate()
+            $('#returnDate').val(a);
+            
+          });           
+  
+          //Book Issue Form
+          $("#issueBook").submit(function(event){
+            var values = $(this).serializeArray();
+            event.preventDefault();
+            
+            var inputs = {};
+            $.each(values,function(k,v){
+              inputs[v.name] = v.value;
+            });
+  
+            console.log(inputs);
+  
+            dbQuery("update book_master set qty = qty - 1 where bookId = " + inputs['bookId'],0 );
+            var qry = "insert into transaction(issueDate,bookId,memberId,transClosed) values('" + inputs["tdate"]+"','" +inputs["bookId"]+"','" +inputs["memberId"]+"',0)";
+            console.log(qry);
+  
+            document.getElementsByClassName("loading").item(0).hidden=false;
+            dbQuery(qry,1, () => {
+              window.close();
+            });
+          });
+            
+
+          
+
+          function addAutoSelector(sel){
+
+            $(sel).change(function(event){
+              console.log('CHG : ' + this.value);
+              $(sel).val(this.value);
+            });
+
+          }
+
+
+          addAutoSelector('.bookSel');
+          addAutoSelector('.memberSel');
+
+
+
+
+
+
+        //Book Return Form
+        $("#returnBook").submit(function(event){
+          var values = $(this).serializeArray();
+          event.preventDefault();
+          
+          var inputs = {};
+          $.each(values,function(k,v){
+            inputs[v.name] = v.value;
+          });
+
+          console.log(inputs);
+
+
+        });
+        
+
+
+selectQry('select bookId,bookTitle from book_master where qty > 0',function(rows){
+          var optId = '';
+          var optName = '';
+
+          rows.forEach(function(row){
+            optId += '<option value=' + row.bookId + '>' + row.bookId + '</option>';
+            optName += '<option value=' + row.bookId + '>' + row.bookTitle + '</option>';
+          });
+
+          document.querySelector('.bookIdSel').innerHTML = optId;
+          document.querySelector('.bookNameSel').innerHTML = optName;
+
+
+        });
+    
+
+
+        selectQry('select memberId,memberName from member',function(rows){
+          var optId = '';
+          var optName = '';
+
+          rows.forEach(function(row){
+            optId += '<option value=' + row.memberId + '>' + row.memberId + '</option>';
+            optName += '<option value=' + row.memberId + '>' + row.memberName + '</option>';
+          });
+
+          document.querySelector('.memIdSel').innerHTML = optId;
+          document.querySelector('.memNameSel').innerHTML = optName;
+
+
+        });
+    
+
+</script>
+
+
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        
+        <link rel='stylesheet' href='../../node_modules/bootstrap/dist/css/bootstrap.min.css'>
+
+        <link rel="stylesheet" href="../include/css/theme.css">
+        <script>let $ = require('jquery');</script>
+        <script>require('popper.js');</script>
+        <script>require('bootstrap');</script>
+        <script src='../include/db/db.js'></script>
+</head>
+<body>
+  
+  <div class="loading" id="spinner">Loading&#8230;</div>
+  <br/><br/><br/>
+        <h1>Book List</h1>
+        <hr>
+        
+        
+        <div class="container">
+        
+
+          <table class="table" id='bookList'> 
+            <thead>
+              <tr>
+              
+                <th>Book Id</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publication</th>
+                <th>Publication Year</th>
+                <th>Genre</th>
+                <th>No of Copies</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+          
+        
+        </div>
+        
+
+        <script>
+          selectQry('select bookId,bookTitle,author,publicationId,publicationYear,genre,qty from book_master',function(rows){
+            var tbl = '';
+
+            rows.forEach(function(row){
+              tbl += '<tr>';
+              tbl = tbl + '<td>' + row.bookId + '</td>';
+              tbl = tbl + '<td>' + row.bookTitle + '</td>';
+              tbl = tbl + '<td>' + row.author + '</td>';
+              tbl = tbl + '<td>' + row.publicationId + '</td>';
+              tbl = tbl + '<td>' + row.publicationYear + '</td>';
+              tbl = tbl + '<td>' + row.genre + '</td>';
+              tbl = tbl + '<td>' + row.qty + '</td>';
+
+              tbl += '</tr>';
+            });
+
+            document.querySelector('#bookList > tbody').innerHTML = tbl;
+            document.getElementsByClassName("loading").item(0).style.opacity = 0;
+          });
+        
+        
+        </script>
+
+</body>
+</html>

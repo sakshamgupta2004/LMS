@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <link rel='stylesheet' href='../../node_modules/bootstrap/dist/css/bootstrap.min.css'>
+
+        <link rel="stylesheet" href="../include/css/theme.css">
+        <script>let $ = require('jquery');</script>
+        <script>require('popper.js');</script>
+        <script>require('bootstrap');</script>
+        <script src='../include/db/db.js'></script>
+</head>
+<body>
+  
+  <div class="loading" id="spinner">Loading&#8230;</div>
+  <br/><br/><br/>
+        <h1>Transaction History</h1>
+        <hr>
+        
+        
+        <div class="container">
+        
+
+          <h2>Book Issues</h2>
+          <table class="table" id='bookIssueList'> 
+            <thead>
+              <tr>
+                <th>Issue Date</th>
+                <th>Book Title</th>
+                <th>Member No</th>
+                <th>Member Name</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+          
+        
+        </div>
+        
+
+        <script>
+          var issueQry = ' select t.issueDate,b.bookTitle,m.memberId,m.memberName,if(t.transClosed=1,"Returned","Pending") as stat from book_master b inner join transaction t on b.bookId = t.bookId inner join member m on m.memberId = t.memberId order by issueDate desc';
+          selectQry(issueQry,function(rows){
+            var tbl = '';
+
+            rows.forEach(function(row){
+              tbl += '<tr>';
+              tbl = tbl + '<td>' + row.issueDate + '</td>';
+              tbl = tbl + '<td>' + row.bookTitle + '</td>';
+              tbl = tbl + '<td>' + row.memberId + '</td>';
+              tbl = tbl + '<td>' + row.memberName + '</td>';
+              tbl = tbl + '<td>' + row.stat + '</td>';
+
+              tbl += '</tr>';
+            });
+
+            document.querySelector('#bookIssueList > tbody').innerHTML = tbl;
+            
+            document.getElementsByClassName("loading").item(0).style.opacity = 0;
+          });
+        
+        
+        </script>
+
+</body>
+</html>

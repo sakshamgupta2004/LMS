@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <link rel='stylesheet' href='../../node_modules/bootstrap/dist/css/bootstrap.min.css'>
+        <link rel="stylesheet" href="../include/css/theme.css">
+        <script>let $ = require('jquery');</script>
+        <script>require('popper.js');</script>
+        <script>require('bootstrap');</script>
+        <script src='../include/db/db.js'></script>
+</head>
+<body>
+
+  <div class="loading" id="spinner" hidden="true">Loading&#8230;</div>
+  <br/><br/><br/>
+  <h1>New Book Entry</h1>
+
+  <div class="container">
+
+
+<form id='newBook'>
+  
+      
+      <div class="form-group row">
+        <label class="col-sm-2" for="isbn">ISBN</label>
+        <div class="col-sm-10"><input class="form-control" type="text" name='isbn'></div>
+      </div>    
+  
+  
+  
+      <div class="form-group row">
+        <label class="col-sm-2" for="bookTitle">Book Title</label>
+        <div class="col-sm-10"><input class="form-control" type="text" name='bookTitle'></div>
+      </div>    
+  
+      <div class="form-group row">
+        <label class="col-sm-2" for="publication">Publication</label>
+        <div class="col-sm-4"><input class="form-control" type="text" name='publication'></div>
+        <label class="col-sm-2" for="pubYear">Publication Year</label>
+        <div class="col-sm-4"><input class="form-control" type="text" name='pubYear'></div>
+      </div>    
+  
+      <div class="form-group row">
+        <label class="col-sm-2" for="authors">Authors</label>
+        <div class="col-sm-10"><input class="form-control" type="text" name='authors'></div>
+      </div>    
+  
+
+  
+      <div class="form-group row">
+        <label class="col-sm-2" for="qty">No of Books</label>
+        <div class="col-sm-4"><input class="form-control" type="text" name='qty'></div>
+        <label class="col-sm-2" for="genre">Genre</label>
+        <div class="col-sm-4"><input class="form-control" type="text" name='genre'></div>
+      </div>    
+  
+  
+      <div class="form-group row">
+        <div class="col-sm-12"><input class="form-control" type="submit" value='Enter Book'></div>
+      </div>    
+  
+</form>
+
+
+  </div>
+
+
+</body>
+
+
+
+<script>
+
+        $("#newBook").submit(function(event){
+          var values = $(this).serializeArray();
+          event.preventDefault();
+          
+          var inputs = {};
+          $.each(values,function(k,v){
+            inputs[v.name] = v.value;
+          });
+
+          console.log(inputs);
+
+          var qry = "insert into book_master(bookId,bookTitle,author,qty,genre,publicationId,publicationYear) values('" + inputs["isbn"]+"','" +inputs["bookTitle"]+"','" +inputs["authors"]+"','" + inputs["qty"] + "','" + inputs["genre"] + "','" + inputs["publication"] + "','" + inputs["pubYear"] + "')";
+          console.log(qry);
+
+          document.getElementsByClassName("loading").item(0).hidden=false;
+          var status = dbQuery(qry,1, () => {
+              window.close();
+            });
+
+
+            
+
+
+        });
+          
+</script>
+
+
+
+
+
+</html>
